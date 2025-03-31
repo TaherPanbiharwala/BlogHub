@@ -70,7 +70,7 @@ function renderBlogPosts(posts = blogPosts) {
 
   // Attach events for like buttons
   document.querySelectorAll('.like-button').forEach(btn => {
-    btn.addEventListener('click', function(e) {
+    btn.addEventListener('click', function (e) {
       e.preventDefault();
       const postId = this.getAttribute('data-post-id');
       toggleLike(postId, this);
@@ -79,7 +79,7 @@ function renderBlogPosts(posts = blogPosts) {
 
   // Attach events for bookmark buttons
   document.querySelectorAll('.bookmark-button').forEach(btn => {
-    btn.addEventListener('click', function(e) {
+    btn.addEventListener('click', function (e) {
       e.preventDefault();
       const postId = this.getAttribute('data-post-id');
       toggleBookmark(postId, this);
@@ -88,7 +88,7 @@ function renderBlogPosts(posts = blogPosts) {
 
   // Title anchors open the post
   document.querySelectorAll('.blog-card-title a').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       e.preventDefault();
       const slug = this.getAttribute('data-slug');
       showBlogPost(slug);
@@ -122,7 +122,7 @@ function renderSavedPosts(posts) {
   });
   // Attach click events for titles in saved posts
   document.querySelectorAll('#saved-posts .blog-card-title a').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       e.preventDefault();
       const slug = this.getAttribute('data-slug');
       showBlogPost(slug);
@@ -243,7 +243,7 @@ function showBlogPost(slug) {
         <div class="post-meta">
           <span class="post-date">Posted on: ${new Date(post.createdAt).toLocaleString()}</span>
           <span class="post-author">by ${post.username || 'Anonymous'}</span>
-          ${ post.updatedAt && post.updatedAt !== post.createdAt ? `<span class="post-edited">Edited on: ${new Date(post.updatedAt).toLocaleString()}</span>` : '' }
+          ${post.updatedAt && post.updatedAt !== post.createdAt ? `<span class="post-edited">Edited on: ${new Date(post.updatedAt).toLocaleString()}</span>` : ''}
         </div>
       </div>
       <div class="post-body">${post.content}</div>
@@ -267,7 +267,7 @@ function showBlogPost(slug) {
     // Attach edit event if applicable
     const editBtn = document.getElementById('edit-post-btn');
     if (editBtn) {
-      editBtn.addEventListener('click', function() {
+      editBtn.addEventListener('click', function () {
         openEditForm(post);
       });
     }
@@ -320,7 +320,7 @@ function openEditForm(post) {
       <button type="submit">Update Post</button>
     </form>
   `;
-  document.getElementById('edit-post-form').addEventListener('submit', function(e) {
+  document.getElementById('edit-post-form').addEventListener('submit', function (e) {
     e.preventDefault();
     const updatedPost = {
       title: document.getElementById('edit-post-title').value,
@@ -333,12 +333,12 @@ function openEditForm(post) {
     };
     db.collection('blogPosts').doc(post.id).update(updatedPost)
       .then(() => {
-         alert("Post updated successfully!");
-         editFormContainer.remove();
+        alert("Post updated successfully!");
+        editFormContainer.remove();
       })
       .catch(error => {
-         console.error("Error updating post:", error);
-         alert("Error updating post: " + error.message);
+        console.error("Error updating post:", error);
+        alert("Error updating post: " + error.message);
       });
   });
 }
@@ -347,7 +347,7 @@ function openEditForm(post) {
 function fetchComments(postId) {
   const commentsContainer = document.getElementById('comments-container');
   commentsContainer.innerHTML = '';
-  
+
   db.collection("blogPosts").doc(postId).collection("comments")
     .orderBy("createdAt", "asc")
     .onSnapshot(snapshot => {
@@ -357,14 +357,18 @@ function fetchComments(postId) {
         comment.id = doc.id;
         comments.push(comment);
       });
+      console.log("Fetched comments:", comments); // Debug log
       renderComments(comments);
     }, error => {
       console.error("Error fetching comments:", error);
     });
 }
-
 // Render comments in the comments container
 function renderComments(comments) {
+  if (!Array.isArray(comments)) {
+    console.error("renderComments expected an array, got:", comments);
+    return;
+  }
   const commentsContainer = document.getElementById('comments-container');
   commentsContainer.innerHTML = '';
   comments.forEach(comment => {
@@ -381,10 +385,79 @@ function renderComments(comments) {
     `;
     commentsContainer.appendChild(commentDiv);
   });
-}
+  // Render the comment form for a post
+  }
+
 
 // Render the comment form for a post
-
+function renderCommentForm(postId) {
+  const commentFormContainer = document.getElementById('comment-form-container');
+  if (!commentFormContainer) {
+    console.error("Comment form container not found in the DOM.");
+    return;
+  }
+  
+  commentFormContainer.innerHTML = `
+    <form id="comment-form">
+      <textarea id="comment-text" placeholder="Write a comment..." required></textarea>
+      <button type="submit" class="submit-button">Post Comment</button>
+    </form>
+  `;
+  
+  const commentForm = document.getElementById('comment-form');
+  if (!commentForm) {
+    console.error("Comment form element not found.");
+    return;
+  }
+  
+  commentForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const commentText = document.getElementById('comment-text').value.trim();
+    if (!commentText) {
+      console.log("Comment text is empty.");
+      return;
+    }
+    
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) {
+      alert("Please log in to comment.");
+      window.location.href = "login.html";
+      return;
+    }
+    
+    console.log("Posting comment for postId:", postId, "by user:", currentUser.uid);
+    
+    // Retrieve user's chosen username from Firestore; fall back to displayName/email if not available
+    db.collection("users").doc(currentUser.uid).get()
+      .then(doc => {
+        let username = "Anonymous";
+        if (doc.exists) {
+          console.log("User document found:", doc.data());
+          username = doc.data().username || currentUser.displayName || currentUser.email || "Anonymous";
+        } else {
+          console.log("User document not found, using auth data.");
+          username = currentUser.displayName || currentUser.email || "Anonymous";
+        }
+        console.log("Using username:", username);
+        
+        // Add the comment to the "comments" subcollection for the post
+        return db.collection("blogPosts").doc(postId).collection("comments").add({
+          text: commentText,
+          username: username,
+          userId: currentUser.uid,
+          createdAt: new Date().toISOString()
+        });
+      })
+      .then(() => {
+        console.log("Comment posted successfully.");
+        commentForm.reset();
+      })
+      .catch(error => {
+        console.error("Error posting comment:", error);
+        alert("Error posting comment: " + error.message);
+      });
+  });
+}
 
 /* ========================
    Utility Functions
@@ -442,55 +515,55 @@ function fetchBookmarkedPosts() {
 
 function setupEventListeners() {
   // Delegate clicks on read-more (if any) to show single post view
-  document.addEventListener('click', function(e) {
+  document.addEventListener('click', function (e) {
     if (e.target.classList.contains('read-more')) {
       e.preventDefault();
       const slug = e.target.getAttribute('data-slug');
       showBlogPost(slug);
     }
   });
-  
+
   // Back button
-  backButton.addEventListener('click', function() {
+  backButton.addEventListener('click', function () {
     showSection(blogListSection);
     setActiveNavLink(homeLink);
   });
 
   // Navigation links
-  homeLink.addEventListener('click', function(e) {
+  homeLink.addEventListener('click', function (e) {
     e.preventDefault();
     showSection(blogListSection);
     setActiveNavLink(homeLink);
   });
-  
-  aboutLink.addEventListener('click', function(e) {
+
+  aboutLink.addEventListener('click', function (e) {
     e.preventDefault();
     showSection(aboutSection);
     setActiveNavLink(aboutLink);
   });
-  
-  contactLink.addEventListener('click', function(e) {
+
+  contactLink.addEventListener('click', function (e) {
     e.preventDefault();
     showSection(contactSection);
     setActiveNavLink(contactLink);
   });
 
   // Saved Posts link
-  savedLink.addEventListener('click', function(e) {
+  savedLink.addEventListener('click', function (e) {
     e.preventDefault();
     fetchBookmarkedPosts();
     showSection(savedPostsSection);
     setActiveNavLink(savedLink);
   });
 
-  contactForm.addEventListener('submit', function(e) {
+  contactForm.addEventListener('submit', function (e) {
     e.preventDefault();
     alert('Thank you for your message! This would be sent to a server in a real application.');
     contactForm.reset();
   });
 
   // Sign Out event listener
-  signoutLink.addEventListener('click', function(e) {
+  signoutLink.addEventListener('click', function (e) {
     e.preventDefault();
     firebase.auth().signOut().then(() => {
       alert("You have signed out.");
@@ -501,7 +574,7 @@ function setupEventListeners() {
   });
 
   // Floating + button event to show new post form
-  floatingAddBtn.addEventListener('click', function(e) {
+  floatingAddBtn.addEventListener('click', function (e) {
     e.preventDefault();
     toggleNewPostForm();
   });
@@ -548,7 +621,7 @@ function toggleNewPostForm() {
     newPostContainer.appendChild(newPostForm);
 
     // Event listener for the new post form submission
-    document.getElementById('post-form').addEventListener('submit', function(e) {
+    document.getElementById('post-form').addEventListener('submit', function (e) {
       e.preventDefault();
       const title = document.getElementById('post-title').value;
       const excerpt = document.getElementById('post-excerpt').value;
@@ -556,7 +629,7 @@ function toggleNewPostForm() {
       const tagsStr = document.getElementById('post-tags').value;
       const section = document.getElementById('post-section').value;
       const image = document.getElementById('post-image').value;
-      
+
       const tags = tagsStr.split(',').map(tag => tag.trim()).filter(tag => tag);
       const newPost = {
         title: title,
@@ -604,7 +677,7 @@ function toggleNewPostForm() {
    Auth State & Initialization
 ========================== */
 
-firebase.auth().onAuthStateChanged(function(user) {
+firebase.auth().onAuthStateChanged(function (user) {
   if (user) {
     signoutLink.style.display = 'inline';
     floatingAddBtn.style.display = 'inline';
