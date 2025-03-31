@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Blog - BlogHub</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <!-- Your Firebase config -->
+  <script src="firebase-config.js"></script>
+  <!-- Main script -->
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1 class="logo" id="home-icon">BlogHub</h1>
+      <nav>
+        <ul>
+          <li><a href="index.html" class="active" id="home-link">Home</a></li>
+          <li><a href="about.html" id="about-link">About</a></li>
+          <li><a href="contact.html" id="contact-link">Contact</a></li>
+          <li><a href="signup.html" id="signup-link">Sign Up</a></li>
+          <li><a href="login.html" id="login-link">Login</a></li>
+          <!-- Saved Posts link; shown only when logged in -->
+          <li><a href="#" id="saved-link" style="display: none;">Saved Posts</a></li>
+          <!-- Sign Out link; initially hidden -->
+          <li><a href="#" id="signout-link" style="display: none;">Sign Out</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+    <!-- New Post Form container; injected when the user clicks the + button -->
+    <div id="new-post-container"></div>
+    
+    <!-- Blog List Section -->
+    <section id="blog-list" class="active-section">
+      <h2 class="section-title">Latest Posts</h2>
+      <div class="blog-grid" id="blog-posts-container">
+        <!-- Blog posts will be dynamically inserted here -->
+      </div>
+    </section>
+
+    <!-- Saved Posts Section -->
+    <section id="saved-posts" class="hidden-section">
+      <h2 class="section-title">Bookmarked Posts</h2>
+      <div class="blog-grid" id="saved-posts-container">
+        <!-- Bookmarked posts will be rendered here -->
+      </div>
+    </section>
+    
+    <!-- Single Blog Post View -->
+    <section id="blog-post" class="hidden-section">
+      <button id="back-button" class="back-button">← Back to Posts</button>
+      <article id="post-content">
+        <!-- Single post content will be shown here -->
+      </article>
+    </section>
+    
+    <!-- About Section -->
+    <section id="about" class="hidden-section">
+      <h2 class="section-title">About BlogHub</h2>
+      <div class="about-content">
+        <img src="https://via.placeholder.com/300" alt="About BlogHub" class="about-image">
+        <div class="about-text">
+          <p>Welcome to BlogHub—a dynamic blog platform built with Firebase.</p>
+          <p>Read the latest posts, bookmark your favorites, or log in to add your own posts by clicking the plus (+) button.</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="hidden-section">
+      <h2 class="section-title">Contact Us</h2>
+      <form id="contact-form" class="contact-form">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="submit-button">Send Message</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- Floating + button (Add Post) -->
+  <a href="#" id="floating-add-btn">+</a>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 BlogHub. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
