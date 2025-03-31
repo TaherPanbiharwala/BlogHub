@@ -586,3 +586,57 @@ footer {
   #home-icon:hover {
     color: #1d4ed8; /* A slightly darker blue; adjust as needed */
   }
+  #edit-post-btn {
+    background-color: #2563eb; /* Blue background */
+    color: #ffffff;           /* White text */
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 1rem;         /* Optional margin for spacing */
+  }
+  
+  #edit-post-btn:hover {
+    background-color: #1d4ed8; /* Darker blue on hover */
+    transform: scale(1.05);    /* Slightly larger on hover */
+  }
+  /* Update Post Button (Edit Button) */
+  
+  /* Post Blog Button (Used in New Post Form) */
+  #post-form button,
+  .submit-button {
+    background-color: #2563eb; /* Same primary blue for consistency */
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 1rem;
+  }
+  
+  #post-form button:hover,
+  .submit-button:hover {
+    background-color: #1d4ed8;
+    transform: scale(1.05);
+  }
+  /* Update Post Button in the Edit Form */
+#edit-post-form button {
+    background-color: #2563eb; /* Primary blue */
+    color: #ffffff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 1rem;
+  }
+  
+  #edit-post-form button:hover {
+    background-color: #1d4ed8; /* Darker blue on hover */
+    transform: scale(1.05);
+  }
