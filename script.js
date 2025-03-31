@@ -5,14 +5,10 @@ let blogPosts = [];
 const blogPostsContainer = document.getElementById('blog-posts-container');
 const blogListSection = document.getElementById('blog-list');
 const blogPostSection = document.getElementById('blog-post');
-const aboutSection = document.getElementById('about');
-const contactSection = document.getElementById('contact');
+// Removed aboutSection and contactSection references if not used
 const postContent = document.getElementById('post-content');
 const backButton = document.getElementById('back-button');
-const homeLink = document.getElementById('home-link');
-const aboutLink = document.getElementById('about-link');
-const contactLink = document.getElementById('contact-link');
-const contactForm = document.getElementById('contact-form');
+// Removed homeLink, aboutLink, and contactLink since they're no longer in the HTML
 const signupLink = document.getElementById('signup-link');
 const loginLink = document.getElementById('login-link');
 const signoutLink = document.getElementById('signout-link');
@@ -157,7 +153,6 @@ function toggleLike(postId, likeBtnElement) {
       }
       postRef.update(updateData)
         .then(() => {
-          // Update button style (this is a basic toggle; you may want to refresh the post data)
           if (likedBy.includes(currentUser.uid)) {
             likeBtnElement.classList.remove('liked');
           } else {
@@ -357,12 +352,13 @@ function fetchComments(postId) {
         comment.id = doc.id;
         comments.push(comment);
       });
-      console.log("Fetched comments:", comments); // Debug log
+      console.log("Fetched comments:", comments);
       renderComments(comments);
     }, error => {
       console.error("Error fetching comments:", error);
     });
 }
+
 // Render comments in the comments container
 function renderComments(comments) {
   if (!Array.isArray(comments)) {
@@ -385,9 +381,7 @@ function renderComments(comments) {
     `;
     commentsContainer.appendChild(commentDiv);
   });
-  // Render the comment form for a post
-  }
-
+}
 
 // Render the comment form for a post
 function renderCommentForm(postId) {
@@ -396,37 +390,37 @@ function renderCommentForm(postId) {
     console.error("Comment form container not found in the DOM.");
     return;
   }
-  
+
   commentFormContainer.innerHTML = `
     <form id="comment-form">
       <textarea id="comment-text" placeholder="Write a comment..." required></textarea>
       <button type="submit" class="submit-button">Post Comment</button>
     </form>
   `;
-  
+
   const commentForm = document.getElementById('comment-form');
   if (!commentForm) {
     console.error("Comment form element not found.");
     return;
   }
-  
-  commentForm.addEventListener('submit', function(e) {
+
+  commentForm.addEventListener('submit', function (e) {
     e.preventDefault();
     const commentText = document.getElementById('comment-text').value.trim();
     if (!commentText) {
       console.log("Comment text is empty.");
       return;
     }
-    
+
     const currentUser = firebase.auth().currentUser;
     if (!currentUser) {
       alert("Please log in to comment.");
       window.location.href = "login.html";
       return;
     }
-    
+
     console.log("Posting comment for postId:", postId, "by user:", currentUser.uid);
-    
+
     // Retrieve user's chosen username from Firestore; fall back to displayName/email if not available
     db.collection("users").doc(currentUser.uid).get()
       .then(doc => {
@@ -439,8 +433,7 @@ function renderCommentForm(postId) {
           username = currentUser.displayName || currentUser.email || "Anonymous";
         }
         console.log("Using username:", username);
-        
-        // Add the comment to the "comments" subcollection for the post
+
         return db.collection("blogPosts").doc(postId).collection("comments").add({
           text: commentText,
           username: username,
@@ -465,7 +458,7 @@ function renderCommentForm(postId) {
 
 // Show/hide sections
 function showSection(sectionToShow) {
-  const sections = [blogListSection, blogPostSection, aboutSection, contactSection, savedPostsSection];
+  const sections = [blogListSection, blogPostSection, /* aboutSection, contactSection, */ savedPostsSection];
   sections.forEach(section => {
     section.classList.remove('active-section');
     section.classList.add('hidden-section');
@@ -475,10 +468,13 @@ function showSection(sectionToShow) {
   window.scrollTo(0, 0);
 }
 
-// Set active navigation link
+// Set active navigation link (only savedLink is used now)
 function setActiveNavLink(activeLink) {
-  [homeLink, aboutLink, contactLink, savedLink].forEach(link => link.classList.remove('active'));
-  activeLink.classList.add('active');
+  // Removed homeLink, aboutLink, and contactLink from the array
+  [savedLink].forEach(link => {
+    if (link) link.classList.remove('active');
+  });
+  if (activeLink) activeLink.classList.add('active');
 }
 
 /* ========================
@@ -505,16 +501,14 @@ function fetchBookmarkedPosts() {
     })
     .catch(error => {
       console.error("Error fetching bookmarked posts:", error);
-      // If an index is required, follow the link provided in the console error.
     });
 }
 
 /* ========================
    Event Listeners & UI Interactions
 ========================== */
-
 function setupEventListeners() {
-  // Delegate clicks on read-more (if any) to show single post view
+  // Delegate clicks on read-more to show single post view
   document.addEventListener('click', function (e) {
     if (e.target.classList.contains('read-more')) {
       e.preventDefault();
@@ -526,41 +520,26 @@ function setupEventListeners() {
   // Back button
   backButton.addEventListener('click', function () {
     showSection(blogListSection);
-    setActiveNavLink(homeLink);
-  });
-
-  // Navigation links
-  homeLink.addEventListener('click', function (e) {
-    e.preventDefault();
-    showSection(blogListSection);
-    setActiveNavLink(homeLink);
-  });
-
-  aboutLink.addEventListener('click', function (e) {
-    e.preventDefault();
-    showSection(aboutSection);
-    setActiveNavLink(aboutLink);
-  });
-
-  contactLink.addEventListener('click', function (e) {
-    e.preventDefault();
-    showSection(contactSection);
-    setActiveNavLink(contactLink);
+    // Removed setting active link for homeLink since it's removed
   });
 
   // Saved Posts link
-  savedLink.addEventListener('click', function (e) {
-    e.preventDefault();
-    fetchBookmarkedPosts();
-    showSection(savedPostsSection);
-    setActiveNavLink(savedLink);
-  });
-
-  contactForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    alert('Thank you for your message! This would be sent to a server in a real application.');
-    contactForm.reset();
-  });
+  if (savedLink) {
+    savedLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      fetchBookmarkedPosts();
+      showSection(savedPostsSection);
+      setActiveNavLink(savedLink);
+    });
+  }
+  const homeIcon = document.getElementById('home-icon');
+  if (homeIcon) {
+    homeIcon.addEventListener('click', function (e) {
+      e.preventDefault();
+      showSection(blogListSection);
+      // Optionally, you can update the active navigation state here if needed.
+    });
+  }
 
   // Sign Out event listener
   signoutLink.addEventListener('click', function (e) {

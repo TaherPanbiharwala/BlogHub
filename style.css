@@ -578,3 +578,11 @@ footer {
   #comment-form button:hover {
     background-color: #1d4ed8;
   }
+  #home-icon {
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  #home-icon:hover {
+    color: #1d4ed8; /* A slightly darker blue; adjust as needed */
+  }
